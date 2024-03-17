@@ -6,4 +6,7 @@
 [![Stackage LTS](https://www.stackage.org/package/strict-vars/badge/lts)](https://www.stackage.org/lts/package/strict-vars)
 [![Stackage Nightly](https://www.stackage.org/package/strict-vars/badge/nightly)](https://www.stackage.org/nightly/package/strict-vars)
 
-Strict (WHNF) variants of Haskell variables.
+Strict (WHNF) variants of
+[IORef](https://hackage.haskell.org/package/base/docs/Data-IORef.html) and
+[MVar](https://hackage.haskell.org/package/base/docs/Control-Concurrent-MVar.html)
+for proactive prevention of space leaks.
