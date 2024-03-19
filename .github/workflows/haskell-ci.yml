@@ -241,7 +241,7 @@ jobs:
       - name: doctest
         run: |
           cd ${PKGDIR_strict_vars} || false
-          doctest  -XHaskell2010 -XBangPatterns -XMagicHash -XUnboxedTuples src
+          doctest  -XHaskell2010 -XBangPatterns -XLambdaCase -XMagicHash -XUnboxedTuples src
       - name: cabal check
         run: |
           cd ${PKGDIR_strict_vars} || false
