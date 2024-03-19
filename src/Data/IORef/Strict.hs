@@ -12,16 +12,17 @@ module Data.IORef.Strict
   , mkWeakIORef'
   ) where
 
-import qualified Data.IORef as Base
+import Control.DeepSeq
 import GHC.Exts (mkWeak#)
 import GHC.IO (IO(..))
 import GHC.IORef (IORef(..))
 import GHC.STRef (STRef(..))
 import GHC.Weak (Weak(..))
+import qualified Data.IORef as Base
 
 -- | A strict (WHNF) variant of 'IORef'.
 newtype IORef' a = IORef' (Base.IORef a)
-  deriving Eq
+  deriving (Eq, NFData, NFData1)
 
 -- | Convert an 'IORef' to an 'IORef''.
 toIORef' :: IORef a -> IO (IORef' a)

@@ -3,3 +3,5 @@ doctest:        True
 tests:          True
 
 ghcup-jobs:     True
+
+installed: -deepseq

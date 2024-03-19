@@ -21,15 +21,16 @@ module Control.Concurrent.MVar.Strict
   , mkWeakMVar'
   ) where
 
-import qualified Control.Concurrent.MVar as Base
+import Control.DeepSeq
 import GHC.Exts (mkWeak#)
 import GHC.IO (IO(..))
 import GHC.MVar (MVar(..))
 import GHC.Weak (Weak(..))
+import qualified Control.Concurrent.MVar as Base
 
 -- | Strict (WHNF) version of 'MVar'.
 newtype MVar' a = MVar' (MVar a)
-  deriving Eq
+  deriving (Eq, NFData, NFData1)
 
 -- | Convert an 'MVar' to an 'MVar''.
 toMVar' :: MVar a -> IO (MVar' a)
