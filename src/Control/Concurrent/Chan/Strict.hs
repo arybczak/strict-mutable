@@ -9,6 +9,7 @@ module Control.Concurrent.Chan.Strict
   , writeList2Chan'
   ) where
 
+import Control.Exception (evaluate)
 import qualified Control.Concurrent.Chan as Base
 
 -- | A strict (WHNF) variant of 'Base.Chan'.
@@ -21,7 +22,7 @@ newChan' = Chan' <$> Base.newChan
 
 -- | 'Base.writeChan' for 'Chan''.
 writeChan' :: Chan' a -> a -> IO ()
-writeChan' (Chan' chan) !a = Base.writeChan chan a
+writeChan' (Chan' chan) a = Base.writeChan chan =<< evaluate a
 
 -- | 'Base.readChan' for 'Chan''.
 readChan' :: Chan' a -> IO a
@@ -37,7 +38,9 @@ getChanContents' (Chan' chan) = Base.getChanContents chan
 
 -- | 'Base.writeList2Chan' for 'Chan''.
 writeList2Chan' :: Chan' a -> [a] -> IO ()
-writeList2Chan' (Chan' chan) as = seqList as `seq` Base.writeList2Chan chan as
+writeList2Chan' (Chan' chan) as = do
+  evaluate (seqList as)
+  Base.writeList2Chan chan as
   where
     seqList :: [a] -> ()
     seqList = \case

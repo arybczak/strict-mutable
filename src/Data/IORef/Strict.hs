@@ -13,6 +13,7 @@ module Data.IORef.Strict
   ) where
 
 import Control.DeepSeq
+import Control.Exception (evaluate)
 import GHC.Exts (mkWeak#)
 import GHC.IO (IO(..))
 import GHC.IORef (IORef(..))
@@ -33,7 +34,7 @@ toIORef' var = do
 
 -- | 'Base.newIORef' for 'IORef''.
 newIORef' :: a -> IO (IORef' a)
-newIORef' !a = IORef' <$> Base.newIORef a
+newIORef' a = fmap IORef' . Base.newIORef =<< evaluate a
 
 -- | 'Base.readIORef' for 'IORef''.
 readIORef' :: IORef' a -> IO a
@@ -41,7 +42,7 @@ readIORef' (IORef' var) = Base.readIORef var
 
 -- | 'Base.writeIORef' for 'IORef''.
 writeIORef' :: IORef' a -> a -> IO ()
-writeIORef' (IORef' var) !a = Base.writeIORef var a
+writeIORef' (IORef' var) a = Base.writeIORef var =<< evaluate a
 
 -- | 'Base.modifyIORef' for 'IORef''.
 modifyIORef' :: IORef' a -> (a -> a) -> IO ()
@@ -60,7 +61,7 @@ atomicModifyIORef' (IORef' var) f = Base.atomicModifyIORef' var f
 
 -- | 'Base.atomicWriteIORef' for 'IORef''.
 atomicWriteIORef' :: IORef' a -> a -> IO ()
-atomicWriteIORef' (IORef' var) !a = Base.atomicWriteIORef var a
+atomicWriteIORef' (IORef' var) a = Base.atomicWriteIORef var =<< evaluate a
 
 -- | 'Base.mkWeakIORef' for 'IORef''.
 mkWeakIORef' :: IORef' a -> IO () -> IO (Weak (IORef' a))

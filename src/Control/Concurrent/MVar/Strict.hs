@@ -22,6 +22,7 @@ module Control.Concurrent.MVar.Strict
   ) where
 
 import Control.DeepSeq
+import Control.Exception (evaluate)
 import GHC.Exts (mkWeak#)
 import GHC.IO (IO(..))
 import GHC.MVar (MVar(..))
@@ -45,7 +46,7 @@ newEmptyMVar' = MVar' <$> Base.newEmptyMVar
 
 -- | 'Base.newMVar' for an 'MVar''.
 newMVar' :: a -> IO (MVar' a)
-newMVar' !a = MVar' <$> Base.newMVar a
+newMVar' a = fmap MVar' . Base.newMVar =<< evaluate a
 
 -- | 'Base.takeMVar' for an 'MVar''.
 takeMVar' :: MVar' a -> IO a
@@ -53,7 +54,7 @@ takeMVar' (MVar' var) = Base.takeMVar var
 
 -- | 'Base.putMVar' for an 'MVar''.
 putMVar' :: MVar' a -> a -> IO ()
-putMVar' (MVar' var) !a = Base.putMVar var a
+putMVar' (MVar' var) a = Base.putMVar var =<< evaluate a
 
 -- | 'Base.readMVar' for an 'MVar''.
 readMVar' :: MVar' a -> IO a
@@ -61,7 +62,7 @@ readMVar' (MVar' var) = Base.readMVar var
 
 -- | 'Base.swapMVar' for an 'MVar''.
 swapMVar' :: MVar' a -> a -> IO a
-swapMVar' (MVar' var) !a = Base.swapMVar var a
+swapMVar' (MVar' var) a = Base.swapMVar var =<< evaluate a
 
 -- | 'Base.tryTakeMVar' for an 'MVar''.
 tryTakeMVar' :: MVar' a -> IO (Maybe a)
@@ -69,7 +70,7 @@ tryTakeMVar' (MVar' var) = Base.tryTakeMVar var
 
 -- | 'Base.tryPutMVar' for an 'MVar''.
 tryPutMVar' :: MVar' a -> a -> IO Bool
-tryPutMVar' (MVar' var) !a = Base.tryPutMVar var a
+tryPutMVar' (MVar' var) a = Base.tryPutMVar var =<< evaluate a
 
 -- | 'Base.tryReadMVar' for an 'MVar''.
 tryReadMVar' :: MVar' a -> IO (Maybe a)
@@ -93,28 +94,28 @@ withMVarMasked' (MVar' var) action = Base.withMVarMasked var action
 modifyMVar_' :: MVar' a -> (a -> IO a) -> IO ()
 modifyMVar_' (MVar' var) action = Base.modifyMVar_ var $ \a0 -> do
   a <- action a0
-  a `seq` pure a
+  evaluate a
 {-# INLINE modifyMVar_' #-}
 
 -- | 'Base.modifyMVar' for an 'MVar''.
 modifyMVar' :: MVar' a -> (a -> IO (a, b)) -> IO b
 modifyMVar' (MVar' var) action = Base.modifyMVar var $ \a0 -> do
   (a, b) <- action a0
-  a `seq` pure (a, b)
+  (, b) <$> evaluate a
 {-# INLINE modifyMVar' #-}
 
 -- | 'Base.modifyMVarMasked_' for an 'MVar''.
 modifyMVarMasked_' :: MVar' a -> (a -> IO a) -> IO ()
 modifyMVarMasked_' (MVar' var) action = Base.modifyMVarMasked_ var $ \a0 -> do
   a <- action a0
-  a `seq` pure a
+  evaluate a
 {-# INLINE modifyMVarMasked_' #-}
 
 -- | 'Base.modifyMVarMasked' for an 'MVar''.
 modifyMVarMasked' :: MVar' a -> (a -> IO (a, b)) -> IO b
 modifyMVarMasked' (MVar' var) action = Base.modifyMVarMasked var $ \a0 -> do
   (a, b) <- action a0
-  a `seq` pure (a, b)
+  (, b) <$> evaluate a
 {-# INLINE modifyMVarMasked' #-}
 
 -- | 'Base.mkWeakMVar' for an 'MVar''.

@@ -29,10 +29,10 @@ common language
 
     default-language:   Haskell2010
 
-    default-extensions: BangPatterns
-                        GeneralizedNewtypeDeriving
+    default-extensions: GeneralizedNewtypeDeriving
                         LambdaCase
                         MagicHash
+                        TupleSections
                         UnboxedTuples
 
 library
