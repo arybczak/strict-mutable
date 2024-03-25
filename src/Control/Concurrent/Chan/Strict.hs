@@ -38,11 +38,4 @@ getChanContents' (Chan' chan) = Base.getChanContents chan
 
 -- | 'Base.writeList2Chan' for 'Chan''.
 writeList2Chan' :: Chan' a -> [a] -> IO ()
-writeList2Chan' (Chan' chan) as = do
-  evaluate (seqList as)
-  Base.writeList2Chan chan as
-  where
-    seqList :: [a] -> ()
-    seqList = \case
-      a : rest -> a `seq` seqList rest
-      [] -> ()
+writeList2Chan' = mapM_ . writeChan'
