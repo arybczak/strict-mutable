@@ -1,9 +1,11 @@
-*~
 *.swp
-dist-*
-dist
+*~
 .ghc.environment.*
 .stack-work/
+TAGS
+TAGS.mtime
+cabal.project.local
+dist
+dist-*
 stack.yaml
 stack.yaml.lock
-cabal.project.local

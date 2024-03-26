@@ -1,17 +1,18 @@
 cabal-version:      3.0
 build-type:         Simple
-name:               strict-vars
+name:               strict-mutable-base
 version:            1.0.0.0
-homepage:           https://github.com/arybczak/strict-vars
+homepage:           https://github.com/arybczak/strict-mutable
 license:            BSD-3-Clause
 license-file:       LICENSE
 category:           Data
 maintainer:         andrzej@rybczak.net
 author:             Andrzej Rybczak
-synopsis:           Strict variants of variables
 
-description:        Strict (WHNF) variants of @IORef@ and @MVar@ for proactive
-                    prevention of space leaks.
+synopsis: Strict variants of mutable data types from @base@.
+
+description: Strict (WHNF) variants of @Chan@, @IORef@ and @MVar@ for proactive
+             prevention of space leaks.
 
 extra-doc-files:
   CHANGELOG.md
@@ -19,10 +20,10 @@ extra-doc-files:
 
 tested-with: GHC == { 8.0.2, 8.2.2, 8.4.4, 8.6.5, 8.8.4, 8.10.7, 9.0.2, 9.2.8, 9.4.8, 9.6.4, 9.8.2 }
 
-bug-reports:   https://github.com/arybczak/strict-vars/issues
+bug-reports:   https://github.com/arybczak/strict-mutable/issues
 source-repository head
   type:     git
-  location: https://github.com/arybczak/strict-vars.git
+  location: https://github.com/arybczak/strict-mutable.git
 
 common language
     ghc-options:        -Wall -Wcompat
