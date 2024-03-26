@@ -1,12 +1,17 @@
 -- | For full documentation please refer to "Data.IORef".
 module Data.IORef.Strict
   ( IORef'
+
+    -- * Conversions
+  , fromIORef'
   , toIORef'
+  , atomicToIORef'
+
+    -- * Operations
   , newIORef'
   , readIORef'
   , writeIORef'
   , modifyIORef'
-  , atomicToIORef'
   , atomicModifyIORef'
   , atomicWriteIORef'
   , mkWeakIORef'
@@ -25,11 +30,28 @@ import qualified Data.IORef as Base
 newtype IORef' a = IORef' (Base.IORef a)
   deriving (Eq, NFData, NFData1)
 
--- | Convert an 'IORef' to an 'IORef''.
+-- | Convert a strict 'IORef'' to an 'IORef'.
+fromIORef' :: IORef' a -> IO (IORef a)
+fromIORef' (IORef' var) = pure var
+
+-- | Convert an 'IORef' to a strict 'IORef''.
+--
+-- /Warning:/ it's up to you to ensure that no thunks are put inside the
+-- 'IORef'' via operations on the source.
 toIORef' :: IORef a -> IO (IORef' a)
 toIORef' var = do
   let var' = IORef' var
   modifyIORef' var' id
+  pure var'
+
+-- | Convert an 'IORef' to an 'IORef'' atomically.
+--
+-- /Warning:/ it's up to you to ensure that no thunks are put inside the
+-- 'IORef'' via operations on the source 'IORef'.
+atomicToIORef' :: IORef a -> IO (IORef' a)
+atomicToIORef' var = do
+  let var' = IORef' var
+  atomicModifyIORef' var' (\a -> (a, ()))
   pure var'
 
 -- | 'Base.newIORef' for 'IORef''.
@@ -47,13 +69,6 @@ writeIORef' (IORef' var) a = Base.writeIORef var =<< evaluate a
 -- | 'Base.modifyIORef' for 'IORef''.
 modifyIORef' :: IORef' a -> (a -> a) -> IO ()
 modifyIORef' (IORef' var) f = Base.modifyIORef' var f
-
--- | Convert an 'IORef' to an 'IORef'' atomically.
-atomicToIORef' :: IORef a -> IO (IORef' a)
-atomicToIORef' var = do
-  let var' = IORef' var
-  atomicModifyIORef' var' (\a -> (a, ()))
-  pure var'
 
 -- | 'Base.atomicModifyIORef' for 'IORef''.
 atomicModifyIORef' :: IORef' a -> (a -> (a, b)) -> IO b

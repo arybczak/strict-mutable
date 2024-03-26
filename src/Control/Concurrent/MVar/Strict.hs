@@ -1,7 +1,12 @@
 -- | For full documentation please refer to "Control.Concurrent.MVar".
 module Control.Concurrent.MVar.Strict
   ( MVar'
+
+    -- * Conversions
+  , fromMVar'
   , toMVar'
+
+    -- * Operations
   , newEmptyMVar'
   , newMVar'
   , takeMVar'
@@ -33,7 +38,14 @@ import qualified Control.Concurrent.MVar as Base
 newtype MVar' a = MVar' (MVar a)
   deriving (Eq, NFData, NFData1)
 
--- | Convert an 'MVar' to an 'MVar''.
+-- | Convert a strict 'MVar'' to an 'MVar'.
+fromMVar' :: MVar' a -> IO (MVar a)
+fromMVar' (MVar' var) = pure var
+
+-- | Convert an 'MVar' to a strict 'MVar''.
+--
+-- /Warning:/ it's up to you to ensure that no thunks end up in the 'MVar'' via
+-- operations on the source 'MVar'.
 toMVar' :: MVar a -> IO (MVar' a)
 toMVar' var = do
   let var' = MVar' var
