@@ -1,5 +1,6 @@
 *.swp
 *~
+.dir-locals.el
 .ghc.environment.*
 .stack-work/
 TAGS
