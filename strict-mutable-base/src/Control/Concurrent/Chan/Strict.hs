@@ -1,6 +1,8 @@
 -- | For full documentation please refer to "Control.Concurrent.Chan".
 module Control.Concurrent.Chan.Strict
   ( Chan'
+
+    -- * Operations
   , newChan'
   , writeChan'
   , readChan'

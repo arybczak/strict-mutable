@@ -14,11 +14,11 @@ module Control.Concurrent.MVar.Strict
   , tryReadMVar'
   , isEmptyMVar'
   , withMVar'
-  , withMVarMasked'
-  , modifyMVar_'
+  , withMVar'Masked
+  , modifyMVar'_
   , modifyMVar'
-  , modifyMVarMasked_'
-  , modifyMVarMasked'
+  , modifyMVar'Masked_
+  , modifyMVar'Masked
   , mkWeakMVar'
   ) where
 
@@ -80,16 +80,16 @@ withMVar' (MVar' var) action = Base.withMVar var action
 {-# INLINE withMVar' #-}
 
 -- | 'Base.withMVarMasked' for an 'MVar''.
-withMVarMasked' :: MVar' a -> (a -> IO b) -> IO b
-withMVarMasked' (MVar' var) action = Base.withMVarMasked var action
-{-# INLINE withMVarMasked' #-}
+withMVar'Masked :: MVar' a -> (a -> IO b) -> IO b
+withMVar'Masked (MVar' var) action = Base.withMVarMasked var action
+{-# INLINE withMVar'Masked #-}
 
 -- | 'Base.modifyMVar_' for an 'MVar''.
-modifyMVar_' :: MVar' a -> (a -> IO a) -> IO ()
-modifyMVar_' (MVar' var) action = Base.modifyMVar_ var $ \a0 -> do
+modifyMVar'_ :: MVar' a -> (a -> IO a) -> IO ()
+modifyMVar'_ (MVar' var) action = Base.modifyMVar_ var $ \a0 -> do
   a <- action a0
   evaluate a
-{-# INLINE modifyMVar_' #-}
+{-# INLINE modifyMVar'_ #-}
 
 -- | 'Base.modifyMVar' for an 'MVar''.
 modifyMVar' :: MVar' a -> (a -> IO (a, b)) -> IO b
@@ -99,18 +99,18 @@ modifyMVar' (MVar' var) action = Base.modifyMVar var $ \a0 -> do
 {-# INLINE modifyMVar' #-}
 
 -- | 'Base.modifyMVarMasked_' for an 'MVar''.
-modifyMVarMasked_' :: MVar' a -> (a -> IO a) -> IO ()
-modifyMVarMasked_' (MVar' var) action = Base.modifyMVarMasked_ var $ \a0 -> do
+modifyMVar'Masked_ :: MVar' a -> (a -> IO a) -> IO ()
+modifyMVar'Masked_ (MVar' var) action = Base.modifyMVarMasked_ var $ \a0 -> do
   a <- action a0
   evaluate a
-{-# INLINE modifyMVarMasked_' #-}
+{-# INLINE modifyMVar'Masked_ #-}
 
 -- | 'Base.modifyMVarMasked' for an 'MVar''.
-modifyMVarMasked' :: MVar' a -> (a -> IO (a, b)) -> IO b
-modifyMVarMasked' (MVar' var) action = Base.modifyMVarMasked var $ \a0 -> do
+modifyMVar'Masked :: MVar' a -> (a -> IO (a, b)) -> IO b
+modifyMVar'Masked (MVar' var) action = Base.modifyMVarMasked var $ \a0 -> do
   (a, b) <- action a0
   (, b) <$> evaluate a
-{-# INLINE modifyMVarMasked' #-}
+{-# INLINE modifyMVar'Masked #-}
 
 -- | 'Base.mkWeakMVar' for an 'MVar''.
 mkWeakMVar' :: MVar' a -> IO () -> IO (Weak (MVar' a))
