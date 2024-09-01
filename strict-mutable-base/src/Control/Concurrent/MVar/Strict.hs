@@ -39,6 +39,8 @@ newEmptyMVar' :: IO (MVar' a)
 newEmptyMVar' = MVar' <$> Base.newEmptyMVar
 
 -- | 'Base.newMVar' for an 'MVar''.
+--
+-- Evaluates the initial value to WHNF.
 newMVar' :: a -> IO (MVar' a)
 newMVar' a = fmap MVar' . Base.newMVar =<< evaluate a
 
@@ -47,6 +49,8 @@ takeMVar' :: MVar' a -> IO a
 takeMVar' (MVar' var) = Base.takeMVar var
 
 -- | 'Base.putMVar' for an 'MVar''.
+--
+-- Evaluates the new value to WHNF.
 putMVar' :: MVar' a -> a -> IO ()
 putMVar' (MVar' var) a = Base.putMVar var =<< evaluate a
 
@@ -55,6 +59,8 @@ readMVar' :: MVar' a -> IO a
 readMVar' (MVar' var) = Base.readMVar var
 
 -- | 'Base.swapMVar' for an 'MVar''.
+--
+-- Evaluates the new value to WHNF.
 swapMVar' :: MVar' a -> a -> IO a
 swapMVar' (MVar' var) a = Base.swapMVar var =<< evaluate a
 
@@ -63,6 +69,8 @@ tryTakeMVar' :: MVar' a -> IO (Maybe a)
 tryTakeMVar' (MVar' var) = Base.tryTakeMVar var
 
 -- | 'Base.tryPutMVar' for an 'MVar''.
+--
+-- Evaluates the new value to WHNF.
 tryPutMVar' :: MVar' a -> a -> IO Bool
 tryPutMVar' (MVar' var) a = Base.tryPutMVar var =<< evaluate a
 
@@ -85,6 +93,8 @@ withMVar'Masked (MVar' var) action = Base.withMVarMasked var action
 {-# INLINE withMVar'Masked #-}
 
 -- | 'Base.modifyMVar_' for an 'MVar''.
+--
+-- Evaluates the new value to WHNF.
 modifyMVar'_ :: MVar' a -> (a -> IO a) -> IO ()
 modifyMVar'_ (MVar' var) action = Base.modifyMVar_ var $ \a0 -> do
   a <- action a0
@@ -92,6 +102,8 @@ modifyMVar'_ (MVar' var) action = Base.modifyMVar_ var $ \a0 -> do
 {-# INLINE modifyMVar'_ #-}
 
 -- | 'Base.modifyMVar' for an 'MVar''.
+--
+-- Evaluates the new value to WHNF.
 modifyMVar' :: MVar' a -> (a -> IO (a, b)) -> IO b
 modifyMVar' (MVar' var) action = Base.modifyMVar var $ \a0 -> do
   (a, b) <- action a0
@@ -99,6 +111,8 @@ modifyMVar' (MVar' var) action = Base.modifyMVar var $ \a0 -> do
 {-# INLINE modifyMVar' #-}
 
 -- | 'Base.modifyMVarMasked_' for an 'MVar''.
+--
+-- Evaluates the new value to WHNF.
 modifyMVar'Masked_ :: MVar' a -> (a -> IO a) -> IO ()
 modifyMVar'Masked_ (MVar' var) action = Base.modifyMVarMasked_ var $ \a0 -> do
   a <- action a0
@@ -106,6 +120,8 @@ modifyMVar'Masked_ (MVar' var) action = Base.modifyMVarMasked_ var $ \a0 -> do
 {-# INLINE modifyMVar'Masked_ #-}
 
 -- | 'Base.modifyMVarMasked' for an 'MVar''.
+--
+-- Evaluates the new value to WHNF.
 modifyMVar'Masked :: MVar' a -> (a -> IO (a, b)) -> IO b
 modifyMVar'Masked (MVar' var) action = Base.modifyMVarMasked var $ \a0 -> do
   (a, b) <- action a0

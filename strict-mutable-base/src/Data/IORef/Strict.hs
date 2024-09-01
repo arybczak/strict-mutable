@@ -26,6 +26,8 @@ newtype IORef' a = IORef' (Base.IORef a)
   deriving (Eq, NFData, NFData1)
 
 -- | 'Base.newIORef' for 'IORef''.
+--
+-- Evaluates the initial value to WHNF.
 newIORef' :: a -> IO (IORef' a)
 newIORef' a = fmap IORef' . Base.newIORef =<< evaluate a
 
@@ -34,6 +36,8 @@ readIORef' :: IORef' a -> IO a
 readIORef' (IORef' var) = Base.readIORef var
 
 -- | 'Base.writeIORef' for 'IORef''.
+--
+-- Evaluates the new value to WHNF.
 writeIORef' :: IORef' a -> a -> IO ()
 writeIORef' (IORef' var) a = Base.writeIORef var =<< evaluate a
 
@@ -42,10 +46,14 @@ modifyIORef' :: IORef' a -> (a -> a) -> IO ()
 modifyIORef' (IORef' var) f = Base.modifyIORef' var f
 
 -- | 'Base.atomicModifyIORef' for 'IORef''.
+--
+-- Evaluates the new value to WHNF.
 atomicModifyIORef' :: IORef' a -> (a -> (a, b)) -> IO b
 atomicModifyIORef' (IORef' var) f = Base.atomicModifyIORef' var f
 
 -- | 'Base.atomicWriteIORef' for 'IORef''.
+--
+-- Evaluates the new value to WHNF.
 atomicWriteIORef' :: IORef' a -> a -> IO ()
 atomicWriteIORef' (IORef' var) a = Base.atomicWriteIORef var =<< evaluate a
 

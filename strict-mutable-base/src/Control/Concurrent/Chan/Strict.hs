@@ -23,6 +23,8 @@ newChan' :: IO (Chan' a)
 newChan' = Chan' <$> Base.newChan
 
 -- | 'Base.writeChan' for 'Chan''.
+--
+-- Evaluates the value to WHNF.
 writeChan' :: Chan' a -> a -> IO ()
 writeChan' (Chan' chan) a = Base.writeChan chan =<< evaluate a
 
@@ -39,5 +41,7 @@ getChanContents' :: Chan' a -> IO [a]
 getChanContents' (Chan' chan) = Base.getChanContents chan
 
 -- | 'Base.writeList2Chan' for 'Chan''.
+--
+-- Evaluates the values to WHNF.
 writeList2Chan' :: Chan' a -> [a] -> IO ()
 writeList2Chan' = mapM_ . writeChan'
