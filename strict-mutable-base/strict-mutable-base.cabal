@@ -9,7 +9,7 @@ category:           Data
 maintainer:         andrzej@rybczak.net
 author:             Andrzej Rybczak
 
-synopsis: Strict variants of mutable data types from @base@.
+synopsis: Strict variants of mutable data types from base.
 
 description: Strict (WHNF) variants of @Chan@, @IORef@ and @MVar@ for proactive
              prevention of space leaks.
