@@ -7,7 +7,7 @@ module Control.Concurrent.Chan.Strict
   , writeChan'
   , readChan'
   , dupChan'
-  , getChanContents'
+  , getChan'Contents
   , writeList2Chan'
   ) where
 
@@ -37,8 +37,8 @@ dupChan' :: Chan' a -> IO (Chan' a)
 dupChan' (Chan' chan) = Chan' <$> Base.dupChan chan
 
 -- | 'Base.getChanContents' for 'Chan''.
-getChanContents' :: Chan' a -> IO [a]
-getChanContents' (Chan' chan) = Base.getChanContents chan
+getChan'Contents :: Chan' a -> IO [a]
+getChan'Contents (Chan' chan) = Base.getChanContents chan
 
 -- | 'Base.writeList2Chan' for 'Chan''.
 --
