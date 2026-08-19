@@ -11,3 +11,5 @@ Strict (WHNF) variants of
 [IORef](https://hackage.haskell.org/package/base/docs/Data-IORef.html) and
 [MVar](https://hackage.haskell.org/package/base/docs/Control-Concurrent-MVar.html)
 for proactive prevention of space leaks.
+
+Modules in this package are designed to be imported qualified (usually as `S` or `Strict`, depending on your taste for verbosity).

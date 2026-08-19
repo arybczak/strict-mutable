@@ -1,135 +1,135 @@
 -- | For full documentation please refer to "Control.Concurrent.MVar".
 module Control.Concurrent.MVar.Strict
-  ( MVar'
+  ( MVar
 
     -- * Operations
-  , newEmptyMVar'
-  , newMVar'
-  , takeMVar'
-  , putMVar'
-  , readMVar'
-  , swapMVar'
-  , tryTakeMVar'
-  , tryPutMVar'
-  , tryReadMVar'
-  , isEmptyMVar'
-  , withMVar'
-  , withMVar'Masked
-  , modifyMVar'_
-  , modifyMVar'
-  , modifyMVar'Masked_
-  , modifyMVar'Masked
-  , mkWeakMVar'
+  , newEmptyMVar
+  , newMVar
+  , takeMVar
+  , putMVar
+  , readMVar
+  , swapMVar
+  , tryTakeMVar
+  , tryPutMVar
+  , tryReadMVar
+  , isEmptyMVar
+  , withMVar
+  , withMVarMasked
+  , modifyMVar_
+  , modifyMVar
+  , modifyMVarMasked_
+  , modifyMVarMasked
+  , mkWeakMVar
   ) where
 
 import Control.DeepSeq
 import Control.Exception (evaluate)
 import GHC.Exts (mkWeak#)
 import GHC.IO (IO(..))
-import GHC.MVar (MVar(..))
 import GHC.Weak (Weak(..))
 import qualified Control.Concurrent.MVar as Base
+import qualified GHC.MVar as GHC
 
--- | Strict (WHNF) version of 'MVar'.
-newtype MVar' a = MVar' (MVar a)
+-- | Strict (WHNF) version of 'Base.MVar'.
+newtype MVar a = MVar (GHC.MVar a)
   deriving (Eq, NFData, NFData1)
 
--- | 'Base.newEmptyMVar' for an 'MVar''.
-newEmptyMVar' :: IO (MVar' a)
-newEmptyMVar' = MVar' <$> Base.newEmptyMVar
+-- | 'Base.newEmptyMVar' for an 'MVar'.
+newEmptyMVar :: IO (MVar a)
+newEmptyMVar = MVar <$> Base.newEmptyMVar
 
--- | 'Base.newMVar' for an 'MVar''.
+-- | 'Base.newMVar' for an 'MVar'.
 --
 -- Evaluates the initial value to WHNF.
-newMVar' :: a -> IO (MVar' a)
-newMVar' a = fmap MVar' . Base.newMVar =<< evaluate a
+newMVar :: a -> IO (MVar a)
+newMVar a = fmap MVar . Base.newMVar =<< evaluate a
 
--- | 'Base.takeMVar' for an 'MVar''.
-takeMVar' :: MVar' a -> IO a
-takeMVar' (MVar' var) = Base.takeMVar var
+-- | 'Base.takeMVar' for an 'MVar'.
+takeMVar :: MVar a -> IO a
+takeMVar (MVar var) = Base.takeMVar var
 
--- | 'Base.putMVar' for an 'MVar''.
+-- | 'Base.putMVar' for an 'MVar'.
 --
 -- Evaluates the new value to WHNF.
-putMVar' :: MVar' a -> a -> IO ()
-putMVar' (MVar' var) a = Base.putMVar var =<< evaluate a
+putMVar :: MVar a -> a -> IO ()
+putMVar (MVar var) a = Base.putMVar var =<< evaluate a
 
--- | 'Base.readMVar' for an 'MVar''.
-readMVar' :: MVar' a -> IO a
-readMVar' (MVar' var) = Base.readMVar var
+-- | 'Base.readMVar' for an 'MVar'.
+readMVar :: MVar a -> IO a
+readMVar (MVar var) = Base.readMVar var
 
--- | 'Base.swapMVar' for an 'MVar''.
+-- | 'Base.swapMVar' for an 'MVar'.
 --
 -- Evaluates the new value to WHNF.
-swapMVar' :: MVar' a -> a -> IO a
-swapMVar' (MVar' var) a = Base.swapMVar var =<< evaluate a
+swapMVar :: MVar a -> a -> IO a
+swapMVar (MVar var) a = Base.swapMVar var =<< evaluate a
 
--- | 'Base.tryTakeMVar' for an 'MVar''.
-tryTakeMVar' :: MVar' a -> IO (Maybe a)
-tryTakeMVar' (MVar' var) = Base.tryTakeMVar var
+-- | 'Base.tryTakeMVar' for an 'MVar'.
+tryTakeMVar :: MVar a -> IO (Maybe a)
+tryTakeMVar (MVar var) = Base.tryTakeMVar var
 
--- | 'Base.tryPutMVar' for an 'MVar''.
+-- | 'Base.tryPutMVar' for an 'MVar'.
 --
 -- Evaluates the new value to WHNF.
-tryPutMVar' :: MVar' a -> a -> IO Bool
-tryPutMVar' (MVar' var) a = Base.tryPutMVar var =<< evaluate a
+tryPutMVar :: MVar a -> a -> IO Bool
+tryPutMVar (MVar var) a = Base.tryPutMVar var =<< evaluate a
 
--- | 'Base.tryReadMVar' for an 'MVar''.
-tryReadMVar' :: MVar' a -> IO (Maybe a)
-tryReadMVar' (MVar' var) = Base.tryReadMVar var
+-- | 'Base.tryReadMVar' for an 'MVar'.
+tryReadMVar :: MVar a -> IO (Maybe a)
+tryReadMVar (MVar var) = Base.tryReadMVar var
 
--- | 'Base.isEmptyMVar' for an 'MVar''.
-isEmptyMVar' :: MVar' a -> IO Bool
-isEmptyMVar' (MVar' var) = Base.isEmptyMVar var
+-- | 'Base.isEmptyMVar' for an 'MVar'.
+isEmptyMVar :: MVar a -> IO Bool
+isEmptyMVar (MVar var) = Base.isEmptyMVar var
 
--- | 'Base.withMVar' for an 'MVar''.
-withMVar' :: MVar' a -> (a -> IO b) -> IO b
-withMVar' (MVar' var) action = Base.withMVar var action
-{-# INLINE withMVar' #-}
+-- | 'Base.withMVar' for an 'MVar'.
+withMVar :: MVar a -> (a -> IO b) -> IO b
+withMVar (MVar var) action = Base.withMVar var action
+{-# INLINE withMVar #-}
 
--- | 'Base.withMVarMasked' for an 'MVar''.
-withMVar'Masked :: MVar' a -> (a -> IO b) -> IO b
-withMVar'Masked (MVar' var) action = Base.withMVarMasked var action
-{-# INLINE withMVar'Masked #-}
+-- | 'Base.withMVarMasked' for an 'MVar'.
+withMVarMasked :: MVar a -> (a -> IO b) -> IO b
+withMVarMasked (MVar var) action = Base.withMVarMasked var action
+{-# INLINE withMVarMasked #-}
 
--- | 'Base.modifyMVar_' for an 'MVar''.
+-- | 'Base.modifyMVar_' for an 'MVar'.
 --
 -- Evaluates the new value to WHNF.
-modifyMVar'_ :: MVar' a -> (a -> IO a) -> IO ()
-modifyMVar'_ (MVar' var) action = Base.modifyMVar_ var $ \a0 -> do
+modifyMVar_ :: MVar a -> (a -> IO a) -> IO ()
+modifyMVar_ (MVar var) action = Base.modifyMVar_ var $ \a0 -> do
   a <- action a0
   evaluate a
-{-# INLINE modifyMVar'_ #-}
+{-# INLINE modifyMVar_ #-}
 
--- | 'Base.modifyMVar' for an 'MVar''.
+-- | 'Base.modifyMVar' for an 'MVar'.
 --
 -- Evaluates the new value to WHNF.
-modifyMVar' :: MVar' a -> (a -> IO (a, b)) -> IO b
-modifyMVar' (MVar' var) action = Base.modifyMVar var $ \a0 -> do
+modifyMVar :: MVar a -> (a -> IO (a, b)) -> IO b
+modifyMVar (MVar var) action = Base.modifyMVar var $ \a0 -> do
   (a, b) <- action a0
   (, b) <$> evaluate a
-{-# INLINE modifyMVar' #-}
+{-# INLINE modifyMVar #-}
 
--- | 'Base.modifyMVarMasked_' for an 'MVar''.
+-- | 'Base.modifyMVarMasked_' for an 'MVar'.
 --
 -- Evaluates the new value to WHNF.
-modifyMVar'Masked_ :: MVar' a -> (a -> IO a) -> IO ()
-modifyMVar'Masked_ (MVar' var) action = Base.modifyMVarMasked_ var $ \a0 -> do
+modifyMVarMasked_ :: MVar a -> (a -> IO a) -> IO ()
+modifyMVarMasked_ (MVar var) action = Base.modifyMVarMasked_ var $ \a0 -> do
   a <- action a0
   evaluate a
-{-# INLINE modifyMVar'Masked_ #-}
+{-# INLINE modifyMVarMasked_ #-}
 
--- | 'Base.modifyMVarMasked' for an 'MVar''.
+-- | 'Base.modifyMVarMasked' for an 'MVar'.
 --
 -- Evaluates the new value to WHNF.
-modifyMVar'Masked :: MVar' a -> (a -> IO (a, b)) -> IO b
-modifyMVar'Masked (MVar' var) action = Base.modifyMVarMasked var $ \a0 -> do
+modifyMVarMasked :: MVar a -> (a -> IO (a, b)) -> IO b
+modifyMVarMasked (MVar var) action = Base.modifyMVarMasked var $ \a0 -> do
   (a, b) <- action a0
   (, b) <$> evaluate a
-{-# INLINE modifyMVar'Masked #-}
+{-# INLINE modifyMVarMasked #-}
 
--- | 'Base.mkWeakMVar' for an 'MVar''.
-mkWeakMVar' :: MVar' a -> IO () -> IO (Weak (MVar' a))
-mkWeakMVar' var@(MVar' (MVar var#)) (IO finalizer) = IO $ \s0 ->
+-- | 'Base.mkWeakMVar' for an 'MVar'.
+mkWeakMVar :: MVar a -> IO () -> IO (Weak (MVar a))
+mkWeakMVar var@(MVar (GHC.MVar var#)) (IO finalizer) = IO $ \s0 ->
   case mkWeak# var# var finalizer s0 of
     (# s1, w #) -> (# s1, Weak w #)
