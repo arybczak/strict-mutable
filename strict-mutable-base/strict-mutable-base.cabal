@@ -47,3 +47,24 @@ library
     exposed-modules:  Control.Concurrent.Chan.Strict
                       Control.Concurrent.MVar.Strict
                       Data.IORef.Strict
+
+test-suite test
+    import:           language
+
+    type:             exitcode-stdio-1.0
+
+    build-depends:    base
+                    , strict-mutable-base
+                    , tasty >= 1.0
+                    , tasty-hunit >= 0.10
+
+    hs-source-dirs:   tests
+
+    main-is:          Main.hs
+
+    other-modules:    ChanTests
+                      IORefTests
+                      MVarTests
+                      Utils
+
+    default-extensions: TypeApplications
