@@ -2,6 +2,8 @@ branches:       master
 doctest:        False
 tests:          True
 
+distribution:   jammy
+
 ghcup-jobs:     True
 
 installed: -deepseq
