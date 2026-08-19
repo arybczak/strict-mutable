@@ -1,4 +1,5 @@
 # strict-mutable-base-2.0.0.0 (2026-??-??)
+* Drop support for GHC < 8.10.
 * Drop ticks in names of all operations and types to make the modules
   forward-compatible with versions to-be-included in `base`
   (https://github.com/haskell/core-libraries-committee/issues/341).
