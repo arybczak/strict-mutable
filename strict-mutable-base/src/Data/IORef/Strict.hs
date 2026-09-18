@@ -16,7 +16,6 @@ module Data.IORef.Strict
   ) where
 
 import Control.DeepSeq
-import Control.Exception (evaluate)
 import GHC.Exts (mkWeak#)
 import GHC.IO (IO(..))
 import GHC.STRef (STRef(..))
@@ -32,7 +31,7 @@ newtype IORef a = IORef (Lazy.IORef a)
 --
 -- Evaluates the initial value to WHNF.
 newIORef :: a -> IO (IORef a)
-newIORef a = fmap IORef . Lazy.newIORef =<< evaluate a
+newIORef a = fmap IORef . Lazy.newIORef =<< (pure $! a)
 
 -- | 'Data.IORef.readIORef' for a strict t'IORef'.
 readIORef :: IORef a -> IO a
@@ -42,7 +41,7 @@ readIORef (IORef var) = Lazy.readIORef var
 --
 -- Evaluates the new value to WHNF.
 writeIORef :: IORef a -> a -> IO ()
-writeIORef (IORef var) a = Lazy.writeIORef var =<< evaluate a
+writeIORef (IORef var) a = Lazy.writeIORef var =<< (pure $! a)
 
 -- | 'Data.IORef.modifyIORef' for a strict t'IORef'.
 --
@@ -60,7 +59,7 @@ atomicModifyIORef (IORef var) f = Lazy.atomicModifyIORef' var f
 --
 -- Evaluates the new value to WHNF.
 atomicWriteIORef :: IORef a -> a -> IO ()
-atomicWriteIORef (IORef var) a = Lazy.atomicWriteIORef var =<< evaluate a
+atomicWriteIORef (IORef var) a = Lazy.atomicWriteIORef var =<< (pure $! a)
 
 -- | 'Data.IORef.mkWeakIORef' for a strict t'IORef'.
 mkWeakIORef :: IORef a -> IO () -> IO (Weak (IORef a))
