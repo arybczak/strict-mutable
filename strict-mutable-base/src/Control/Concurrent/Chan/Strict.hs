@@ -14,7 +14,6 @@ module Control.Concurrent.Chan.Strict
   , writeList2Chan
   ) where
 
-import Control.Exception (evaluate)
 import qualified Control.Concurrent.Chan as Lazy
 
 -- | A strict (WHNF) variant of t'Control.Concurrent.Chan.Chan'.
@@ -29,7 +28,7 @@ newChan = Chan <$> Lazy.newChan
 --
 -- Evaluates the value to WHNF.
 writeChan :: Chan a -> a -> IO ()
-writeChan (Chan chan) a = Lazy.writeChan chan =<< evaluate a
+writeChan (Chan chan) a = Lazy.writeChan chan =<< (pure $! a)
 
 -- | 'Control.Concurrent.Chan.readChan' for a strict t'Chan'.
 readChan :: Chan a -> IO a

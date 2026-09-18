@@ -26,7 +26,6 @@ module Control.Concurrent.MVar.Strict
   ) where
 
 import Control.DeepSeq
-import Control.Exception (evaluate)
 import GHC.Exts (mkWeak#)
 import GHC.IO (IO(..))
 import GHC.Weak (Weak(..))
@@ -45,7 +44,7 @@ newEmptyMVar = MVar <$> Lazy.newEmptyMVar
 --
 -- Evaluates the initial value to WHNF.
 newMVar :: a -> IO (MVar a)
-newMVar a = fmap MVar . Lazy.newMVar =<< evaluate a
+newMVar a = fmap MVar . Lazy.newMVar =<< (pure $! a)
 
 -- | 'Control.Concurrent.MVar.takeMVar' for a strict t'MVar'.
 takeMVar :: MVar a -> IO a
@@ -55,7 +54,7 @@ takeMVar (MVar var) = Lazy.takeMVar var
 --
 -- Evaluates the new value to WHNF.
 putMVar :: MVar a -> a -> IO ()
-putMVar (MVar var) a = Lazy.putMVar var =<< evaluate a
+putMVar (MVar var) a = Lazy.putMVar var =<< (pure $! a)
 
 -- | 'Control.Concurrent.MVar.readMVar' for a strict t'MVar'.
 readMVar :: MVar a -> IO a
@@ -65,7 +64,7 @@ readMVar (MVar var) = Lazy.readMVar var
 --
 -- Evaluates the new value to WHNF.
 swapMVar :: MVar a -> a -> IO a
-swapMVar (MVar var) a = Lazy.swapMVar var =<< evaluate a
+swapMVar (MVar var) a = Lazy.swapMVar var =<< (pure $! a)
 
 -- | 'Control.Concurrent.MVar.tryTakeMVar' for a strict t'MVar'.
 tryTakeMVar :: MVar a -> IO (Maybe a)
@@ -75,7 +74,7 @@ tryTakeMVar (MVar var) = Lazy.tryTakeMVar var
 --
 -- Evaluates the new value to WHNF.
 tryPutMVar :: MVar a -> a -> IO Bool
-tryPutMVar (MVar var) a = Lazy.tryPutMVar var =<< evaluate a
+tryPutMVar (MVar var) a = Lazy.tryPutMVar var =<< (pure $! a)
 
 -- | 'Control.Concurrent.MVar.tryReadMVar' for a strict t'MVar'.
 tryReadMVar :: MVar a -> IO (Maybe a)
@@ -101,7 +100,7 @@ withMVarMasked (MVar var) action = Lazy.withMVarMasked var action
 modifyMVar_ :: MVar a -> (a -> IO a) -> IO ()
 modifyMVar_ (MVar var) action = Lazy.modifyMVar_ var $ \a0 -> do
   a <- action a0
-  evaluate a
+  pure $! a
 {-# INLINE modifyMVar_ #-}
 
 -- | 'Control.Concurrent.MVar.modifyMVar' for a strict t'MVar'.
@@ -110,7 +109,7 @@ modifyMVar_ (MVar var) action = Lazy.modifyMVar_ var $ \a0 -> do
 modifyMVar :: MVar a -> (a -> IO (a, b)) -> IO b
 modifyMVar (MVar var) action = Lazy.modifyMVar var $ \a0 -> do
   (a, b) <- action a0
-  (, b) <$> evaluate a
+  (, b) <$> (pure $! a)
 {-# INLINE modifyMVar #-}
 
 -- | 'Control.Concurrent.MVar.modifyMVarMasked_' for a strict t'MVar'.
@@ -119,7 +118,7 @@ modifyMVar (MVar var) action = Lazy.modifyMVar var $ \a0 -> do
 modifyMVarMasked_ :: MVar a -> (a -> IO a) -> IO ()
 modifyMVarMasked_ (MVar var) action = Lazy.modifyMVarMasked_ var $ \a0 -> do
   a <- action a0
-  evaluate a
+  pure $! a
 {-# INLINE modifyMVarMasked_ #-}
 
 -- | 'Control.Concurrent.MVar.modifyMVarMasked' for a strict t'MVar'.
@@ -128,7 +127,7 @@ modifyMVarMasked_ (MVar var) action = Lazy.modifyMVarMasked_ var $ \a0 -> do
 modifyMVarMasked :: MVar a -> (a -> IO (a, b)) -> IO b
 modifyMVarMasked (MVar var) action = Lazy.modifyMVarMasked var $ \a0 -> do
   (a, b) <- action a0
-  (, b) <$> evaluate a
+  (, b) <$> (pure $! a)
 {-# INLINE modifyMVarMasked #-}
 
 -- | 'Control.Concurrent.MVar.mkWeakMVar' for a strict t'MVar'.
