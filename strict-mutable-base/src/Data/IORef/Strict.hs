@@ -1,4 +1,7 @@
--- | Mutable references in the IO monad.
+-- | A strict variant of t'Data.IORef.IORef' that keeps its contents in
+-- weak head normal form (WHNF).
+--
+-- For full documentation please refer to "Data.IORef".
 module Data.IORef.Strict
   ( IORef
 
@@ -18,101 +21,48 @@ import GHC.Exts (mkWeak#)
 import GHC.IO (IO(..))
 import GHC.STRef (STRef(..))
 import GHC.Weak (Weak(..))
-import qualified Data.IORef as Base
+import qualified Data.IORef as Lazy
 import qualified GHC.IORef as GHC
 
--- | A mutable variable in the @IO@ monad, which evaluates its content to Weak
--- Head Normal Form.
-newtype IORef a = IORef (Base.IORef a)
+-- | A strict (WHNF) variant of t'Data.IORef.IORef'.
+newtype IORef a = IORef (Lazy.IORef a)
   deriving (Eq, NFData, NFData1)
 
--- | Build a new 'IORef'.
+-- | 'Data.IORef.newIORef' for a strict t'IORef'.
 --
 -- Evaluates the initial value to WHNF.
 newIORef :: a -> IO (IORef a)
-newIORef a = fmap IORef . Base.newIORef =<< evaluate a
+newIORef a = fmap IORef . Lazy.newIORef =<< evaluate a
 
--- | Read the value of an 'IORef'.
---
--- Beware that the CPU executing a thread can reorder reads or writes
--- to independent locations. See "Data.IORef#memmodel" for more details.
+-- | 'Data.IORef.readIORef' for a strict t'IORef'.
 readIORef :: IORef a -> IO a
-readIORef (IORef var) = Base.readIORef var
+readIORef (IORef var) = Lazy.readIORef var
 
--- | Write a new value into an 'IORef'.
---
--- This function does not create a memory barrier and can be reordered
--- with other independent reads and writes within a thread, which may cause issues
--- for multithreaded execution. In these cases, consider using 'atomicWriteIORef'
--- instead. See "Data.IORef#memmodel" for more details.
+-- | 'Data.IORef.writeIORef' for a strict t'IORef'.
 --
 -- Evaluates the new value to WHNF.
 writeIORef :: IORef a -> a -> IO ()
-writeIORef (IORef var) a = Base.writeIORef var =<< evaluate a
+writeIORef (IORef var) a = Lazy.writeIORef var =<< evaluate a
 
--- | Mutate the contents of an 'IORef', combining 'readIORef' and 'writeIORef'.
--- This is not an atomic update, consider using 'atomicModifyIORef' when
--- operating in a multithreaded environment.
+-- | 'Data.IORef.modifyIORef' for a strict t'IORef'.
 --
 -- Evaluates the new value to WHNF.
 modifyIORef :: IORef a -> (a -> a) -> IO ()
-modifyIORef (IORef var) f = Base.modifyIORef' var f
+modifyIORef (IORef var) f = Lazy.modifyIORef' var f
 
--- | Atomically modifies the contents of an 'IORef'.
---
--- This function is useful for using 'IORef' in a safe way in a multithreaded
--- program.  If you only have one 'IORef', then using 'atomicModifyIORef' to
--- access and modify it will prevent race conditions.
---
--- Extending the atomicity to multiple 'IORef's is problematic, so it
--- is recommended that if you need to do anything more complicated
--- then using t'Control.Concurrent.MVar.Strict.MVar' instead is a good idea.
---
--- Conceptually,
---
--- @
--- atomicModifyIORef ref f = do
---   -- Begin atomic block
---   old <- 'readIORef' ref
---   let r = f old
---       new = fst r
---   'writeIORef' ref new
---   -- End atomic block
---   case r of
---     (_new, res) -> pure res
--- @
---
--- The actions in the section labeled \"atomic block\" are not subject to
--- interference from other threads. In particular, it is impossible for the
--- value in the 'IORef' to change between the 'readIORef' and 'writeIORef'
--- invocations.
---
--- Note that
---
--- @atomicModifyIORef ref (\\_ -> undefined)@
---
--- will raise an exception in the calling thread, but will /also/
--- install the bottoming value in the 'IORef', where it may be read by
--- other threads.
---
--- This function imposes a memory barrier, preventing reordering around the
--- \"atomic block\"; see "Data.IORef#memmodel" for details.
+-- | 'Data.IORef.atomicModifyIORef' for a strict t'IORef'.
 --
 -- Evaluates both the new value and the returned value to WHNF.
 atomicModifyIORef :: IORef a -> (a -> (a, b)) -> IO b
-atomicModifyIORef (IORef var) f = Base.atomicModifyIORef' var f
+atomicModifyIORef (IORef var) f = Lazy.atomicModifyIORef' var f
 
--- | Variant of 'writeIORef'. The prefix "atomic" relates to a fact that
--- it imposes a reordering barrier, similar to 'atomicModifyIORef'.
--- Such a write will not be reordered with other reads
--- or writes even on CPUs with weak memory model.
+-- | 'Data.IORef.atomicWriteIORef' for a strict t'IORef'.
 --
 -- Evaluates the new value to WHNF.
 atomicWriteIORef :: IORef a -> a -> IO ()
-atomicWriteIORef (IORef var) a = Base.atomicWriteIORef var =<< evaluate a
+atomicWriteIORef (IORef var) a = Lazy.atomicWriteIORef var =<< evaluate a
 
--- | Make a 'Weak' pointer to an 'IORef', using the second argument as a finalizer
--- to run when the 'IORef' is garbage-collected.
+-- | 'Data.IORef.mkWeakIORef' for a strict t'IORef'.
 mkWeakIORef :: IORef a -> IO () -> IO (Weak (IORef a))
 mkWeakIORef var@(IORef (GHC.IORef (STRef var#))) (IO finalizer) = IO $ \s0 ->
   case mkWeak# var# var finalizer s0 of
