@@ -13,6 +13,8 @@ mVarTests = testGroup "MVar"
   , testCase "mkWeakMVar" test_mkWeakMVar
   , testCase "values are forced" test_valuesAreForced
   , testCase "values are forced only to WHNF" test_valuesAreForcedOnlyToWHNF
+  , testCase "values are not forced when the action is built"
+      test_valuesAreNotForcedWhenBuilt
   ]
 
 test_basicOperations :: Assertion
@@ -73,3 +75,14 @@ test_valuesAreForcedOnlyToWHNF = do
   assertNotForced "modifyMVar_" $ modifyMVar_ var $ \_ -> pure (Just bomb)
   assertNotForced "modifyMVar (result)" $ modifyMVar var $ \a -> pure (a, bomb)
   assertNotForced "modifyMVarMasked (result)" $ modifyMVarMasked var $ \a -> pure (a, bomb)
+
+test_valuesAreNotForcedWhenBuilt :: Assertion
+test_valuesAreNotForcedWhenBuilt = do
+  assertNotForcedWhenBuilt "newMVar" $ newMVar bomb
+  emptyVar <- newEmptyMVar @Int
+  assertNotForcedWhenBuilt "putMVar" $ putMVar emptyVar bomb
+  assertNotForcedWhenBuilt "tryPutMVar" $ tryPutMVar emptyVar bomb
+  isEmptyMVar emptyVar >>= assertBool "var is still empty"
+  var <- newMVar (1 :: Int)
+  assertNotForcedWhenBuilt "swapMVar" $ swapMVar var bomb
+  readMVar var >>= assertEqual "value is intact" 1

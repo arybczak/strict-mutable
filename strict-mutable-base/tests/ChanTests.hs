@@ -11,6 +11,8 @@ chanTests = testGroup "Chan"
   [ testCase "basic operations" test_basicOperations
   , testCase "values are forced" test_valuesAreForced
   , testCase "values are forced only to WHNF" test_valuesAreForcedOnlyToWHNF
+  , testCase "values are not forced when the action is built"
+      test_valuesAreNotForcedWhenBuilt
   ]
 
 test_basicOperations :: Assertion
@@ -37,3 +39,9 @@ test_valuesAreForcedOnlyToWHNF = do
   chan <- newChan
   assertNotForced "writeChan" $ writeChan chan (Just (bomb :: Int))
   assertNotForced "writeList2Chan" $ writeList2Chan chan [Just bomb]
+
+test_valuesAreNotForcedWhenBuilt :: Assertion
+test_valuesAreNotForcedWhenBuilt = do
+  chan <- newChan @Int
+  assertNotForcedWhenBuilt "writeChan" $ writeChan chan bomb
+  assertNotForcedWhenBuilt "writeList2Chan" $ writeList2Chan chan [bomb]

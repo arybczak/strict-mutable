@@ -13,6 +13,8 @@ ioRefTests = testGroup "IORef"
   , testCase "mkWeakIORef" test_mkWeakIORef
   , testCase "values are forced" test_valuesAreForced
   , testCase "values are forced only to WHNF" test_valuesAreForcedOnlyToWHNF
+  , testCase "values are not forced when the action is built"
+      test_valuesAreNotForcedWhenBuilt
   ]
 
 test_basicOperations :: Assertion
@@ -56,3 +58,11 @@ test_valuesAreForcedOnlyToWHNF = do
   assertNotForced "modifyIORef" $ modifyIORef ref (const (Just bomb))
   assertNotForced "atomicWriteIORef" $ atomicWriteIORef ref (Just bomb)
   assertNotForced "atomicModifyIORef" $ atomicModifyIORef ref $ \a -> (a, Just bomb)
+
+test_valuesAreNotForcedWhenBuilt :: Assertion
+test_valuesAreNotForcedWhenBuilt = do
+  assertNotForcedWhenBuilt "newIORef" $ newIORef bomb
+  ref <- newIORef (1 :: Int)
+  assertNotForcedWhenBuilt "writeIORef" $ writeIORef ref bomb
+  assertNotForcedWhenBuilt "atomicWriteIORef" $ atomicWriteIORef ref bomb
+  readIORef ref >>= assertEqual "value is intact" 1
